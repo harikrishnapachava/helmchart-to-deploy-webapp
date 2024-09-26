@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "demo-webapp.fullname" . }}
+  labels:
+    app: {{ include "demo-webapp.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "demo-webapp.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "demo-webapp.name" . }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          env:
+            - name: ENVIRONMENT
+              value: "{{ .Values.env.environment }}"
+            - name: DB_HOST
+              {{- if eq .Values.env.environment "staging" }}
+              value: "{{ .Values.database.staging.host }}"
+              {{- else if eq .Values.env.environment "prod" }}
+              value: "{{ .Values.database.prod.host }}"
+              {{- end }}
+            - name: DB_PORT
+              {{- if eq .Values.env.environment "staging" }}
+              value: "{{ .Values.database.staging.port }}"
+              {{- else if eq .Values.env.environment "prod" }}
+              value: "{{ .Values.database.prod.port }}"
+              {{- end }}
+            - name: DB_NAME
+              {{- if eq .Values.env.environment "staging" }}
+              value: "{{ .Values.database.staging.name }}"
+              {{- else if eq .Values.env.environment "prod" }}
+              value: "{{ .Values.database.prod.name }}"
+              {{- end }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials-{{ .Values.env.environment }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials-{{ .Values.env.environment }}
+                  key: password
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}

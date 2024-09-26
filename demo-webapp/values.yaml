@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: nginx #public repository  #modify the image name. 
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: demo-webapp.example.com
+      paths:
+        - /
+
+env:
+  environment: ""  # staging or prod
+
+database:
+  staging:
+    host: staging-db.example.com
+    port: 5432
+    name: stagingdb
+    username: ""
+    password: ""
+  prod:
+    host: prod-db.example.com
+    port: 5432
+    name: proddb
+    username: ""
+    password: ""
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
