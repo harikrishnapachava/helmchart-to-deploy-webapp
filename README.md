@@ -1,6 +1,5 @@
 ### **Helm Project (`helmchart-to-deploy-webapp-main`)**
 
-```markdown
 # Helm Chart for Deploying a Web Application
 
 This Helm chart deploys a web application with customizable environment-based database configurations and secrets for database credentials.
